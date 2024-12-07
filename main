@@ -1,0 +1,178 @@
+import datetime
+
+
+class Transaction:
+    """
+    定义交易记录类，包括交易类型、金额和日期
+    """
+    def __init__(self, transaction_type, amount, balance_after):
+        self.transaction_type = transaction_type  # 交易类型（存款、取款）
+        self.amount = amount  # 交易金额
+        self.date = datetime.datetime.now()  # 交易日期
+        self.balance_after = balance_after  # 交易后余额
+
+    def __repr__(self):
+        return f"{self.date.strftime('%Y-%m-%d %H:%M:%S')} | {self.transaction_type} | 金额: {self.amount} | 余额: {self.balance_after}"
+
+
+class BankAccount:
+    """
+    定义银行账户类，包括账户余额和交易记录
+    """
+    def __init__(self, account_number, password, initial_balance=0):
+        self.account_number = account_number  # 账户号码
+        self.password = password  # 账户密码
+        self.balance = initial_balance  # 初始余额
+        self.transactions = []  # 存储交易记录
+
+    def deposit(self, amount):
+        """
+        存款功能
+        """
+        if amount <= 0:
+            print("存款金额必须大于0！")
+            return
+        self.balance += amount
+        transaction = Transaction("存款", amount, self.balance)
+        self.transactions.append(transaction)
+        print(f"存款成功！当前余额：{self.balance}")
+
+    def withdraw(self, amount):
+        """
+        取款功能
+        """
+        if amount <= 0:
+            print("取款金额必须大于0！")
+            return
+        if amount > self.balance:
+            print("余额不足，取款失败！")
+            return
+        self.balance -= amount
+        transaction = Transaction("取款", amount, self.balance)
+        self.transactions.append(transaction)
+        print(f"取款成功！当前余额：{self.balance}")
+
+    def view_balance(self):
+        """
+        查看账户余额
+        """
+        print(f"账户 {self.account_number} 的当前余额：{self.balance}")
+
+    def view_transactions(self):
+        """
+        查看交易流水
+        """
+        if not self.transactions:
+            print("当前没有交易记录。")
+        else:
+            print("交易流水：")
+            for transaction in self.transactions:
+                print(transaction)
+
+
+class BankSystem:
+    """
+    银行系统类，支持账户管理
+    """
+    def __init__(self):
+        self.accounts = {}  # 存储账户信息，键是账户号码，值是 BankAccount 对象
+        self.current_account = None  # 当前登录的账户
+
+    def create_account(self):
+        """
+        创建新账户
+        """
+        account_number = input("请输入新账户号码：")
+        if account_number in self.accounts:
+            print("该账户号码已存在！")
+            return
+        password = input("请输入账户密码：")
+        initial_balance = float(input("请输入初始存款金额："))
+        new_account = BankAccount(account_number, password, initial_balance)
+        self.accounts[account_number] = new_account
+        print(f"账户 {account_number} 创建成功！")
+
+    def login(self):
+        """
+        登录账户
+        """
+        account_number = input("请输入账户号码：")
+        if account_number not in self.accounts:
+            print("账户不存在！")
+            return
+        password = input("请输入账户密码：")
+        if self.accounts[account_number].password != password:
+            print("密码错误！")
+            return
+        self.current_account = self.accounts[account_number]
+        print(f"账户 {account_number} 登录成功！")
+
+    def logout(self):
+        """
+        注销当前账户
+        """
+        self.current_account = None
+        print("已退出账户。")
+
+    def main_menu(self):
+        """
+        主菜单交互逻辑
+        """
+        print("欢迎使用银行管理系统！")
+        while True:
+            print("\n主菜单：")
+            print("1. 创建新账户")
+            print("2. 登录账户")
+            print("3. 退出系统")
+
+            choice = input("请输入操作编号：")
+            if choice == "1":
+                self.create_account()
+            elif choice == "2":
+                self.login()
+                if self.current_account:
+                    self.account_menu()
+            elif choice == "3":
+                print("感谢使用银行管理系统，再见！")
+                break
+            else:
+                print("无效的选项，请重新选择！")
+
+    def account_menu(self):
+        """
+        已登录账户的操作菜单
+        """
+        while self.current_account:
+            print("\n账户菜单：")
+            print("1. 存款")
+            print("2. 取款")
+            print("3. 查询余额")
+            print("4. 查看交易流水")
+            print("5. 注销账户")
+
+            choice = input("请输入操作编号：")
+            if choice == "1":
+                try:
+                    amount = float(input("请输入存款金额："))
+                    self.current_account.deposit(amount)
+                except ValueError:
+                    print("输入金额无效，请输入数字。")
+            elif choice == "2":
+                try:
+                    amount = float(input("请输入取款金额："))
+                    self.current_account.withdraw(amount)
+                except ValueError:
+                    print("输入金额无效，请输入数字。")
+            elif choice == "3":
+                self.current_account.view_balance()
+            elif choice == "4":
+                self.current_account.view_transactions()
+            elif choice == "5":
+                self.logout()
+            else:
+                print("无效的选项，请重新选择！")
+
+
+if __name__ == "__main__":
+    bank_system = BankSystem()
+    bank_system.main_menu()
