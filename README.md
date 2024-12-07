@@ -57,7 +57,7 @@ This is a Python-based bank account management system. Users can create accounts
   - 职责：开发和设计系统结构，实现主要功能模块。
   
 - **English**:  
-  - Name: Your Name  
+  - Name: LiuRenxiu  
   - Role: Developed and designed the system structure, implemented core functionalities.
 
 ---
